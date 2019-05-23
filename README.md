@@ -29,4 +29,5 @@ If you use this code, please cite our paper:
 
 ## How to perform evaluation
 
-* We have placed a sample `config.json` file in `experiments/mini/k8n2/config.json`. This config is used to evaluate the last checkpoint of the mentioned trained network when we have eight positive bags of five images each and ten negative images. The evaluation will be performed on the test classes of the mini-ImageNet dataset. 
+* We have placed a sample `config.json` file in `experiments/mini/k8n2/config.json`. This config is used to evaluate the last checkpoint of the mentioned trained network when we have eight positive bags of five images each and ten negative images. The evaluation will be performed on the test classes of the mini-ImageNet dataset.
+* Run `python eval.py --experiments_dir=experiments/mini/k8n2` to perform evaluation.
