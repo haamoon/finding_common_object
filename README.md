@@ -7,7 +7,7 @@ If you use this code, please cite our paper:
 ```
 @misc{shaban2019learning,
     title={Learning to Find Common Objects Across Image Collections},
-    author={Amirreza Shaban and Amir Rahimi and Stephen Gould and Byron Boots and Richard Hartley},
+    author={Amirreza Shaban and Amir Rahimi and Shray Bansal and Stephen Gould and Byron Boots and Richard Hartley},
     year={2019},
     eprint={1904.12936},
     archivePrefix={arXiv},
