@@ -1,6 +1,6 @@
 ## Learning to Find Common Objects Across Image Collections
 
-Code for the Paper [Learning to Find Common Objects Across Image Collections](https://arxiv.org/abs/1904.12936). This is a reimplementation of the original code in TF2. The results might be slightly different from the paper due to the randomness.
+Code for the paper [Learning to Find Common Objects Across Image Collections](https://arxiv.org/abs/1904.12936). This is a reimplementation of the original code in TF2. The results might be slightly different from the paper due to the randomness.
 
 If you use this code, please cite our paper:
 
