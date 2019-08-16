@@ -8,7 +8,7 @@ If you use this code, please cite our paper:
 @inproceedings{shaban19learning,
  author = {Shaban, Amirreza* and Rahimi, Amir* and Bansal, Shray and Gould, Stephen and Boots, Byron and Hartley, Richard},
  booktitle = {Proceedings of the International Conference on Computer Vision ({ICCV})},
- title = {Learning to Find Common Objects Across Image Collections},
+ title = {Learning to Find Common Objects Across Few Image Collections},
  year = {2019}
 }
 ```
