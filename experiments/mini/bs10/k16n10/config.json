@@ -1,0 +1,26 @@
+{
+  "test": {
+    "k_shot": 16,
+    "bag_size": 10,
+    "negative_bag_size": 10,
+    "split": "test",
+    "num_sample_classes": 20,
+    "num_sample_classes_min": 10,
+    "shuffle": false,
+    "dataset_name": "miniimagenet",
+    "use_features": true,
+    "one_example_per_class": false,
+    "has_single_target": false,
+    "add_gt_list": false,
+    "is_training": false,
+    "prefetch_buffer_size": 50,
+    "iters": 1000,
+    "checkpoint": "experiments/mini/k2n10/train",
+    "unary_scales": [0.2, 0.5, 0.9, 1.5],
+    "ntop_proposals": 300,
+    "print_freq": 100,
+    "regularization_scale": 5e-4,
+    "seed": 1357
+  }
+}
+
