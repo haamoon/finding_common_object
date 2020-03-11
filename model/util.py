@@ -7,6 +7,13 @@ def load_python2_pickle(filename):
     p = pickle.load(f, encoding='latin1')
   return p
 
+
+@tf.function
+def log2(tensor):
+  tensor = tf.cast(tensor, tf.float32)
+  return tf.math.log(tensor)/tf.math.log(2.0)
+
+@tf.function
 def batched_gather(indices, *tensor_list):
   ''' Batched gather operation. For every tensor in the tensor_list
       output[i,j, ...] = tensor[i, indices[i, j], ...]
@@ -19,8 +26,9 @@ def batched_gather(indices, *tensor_list):
 
   # create a 3D tensor with size [N, M, 2]
   # in which array[i, j] = (i, indices[i,j])
-  n_ids = tf.range(indices.shape[0], dtype=indices.dtype)
-  n_ids = tf.tile(n_ids[:, tf.newaxis], [1, indices.shape[1]])
+  indices_shape = tf.shape(indices)
+  n_ids = tf.range(indices_shape[0], dtype=indices.dtype)
+  n_ids = tf.tile(n_ids[:, tf.newaxis], [1, indices_shape[1]])
   indices = tf.stack([n_ids, indices], axis=2)
   ret = []
   for tensor in tensor_list:

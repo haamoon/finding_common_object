@@ -9,7 +9,17 @@ from model.pairwise_cross_similarity import PairwiseCrossSimilarity
 
 import numpy as np
 
-from model.util import batched_gather
+from model.util import batched_gather, log2
+
+
+#@tf.function
+def split(tensor):
+  return tensor[::2], tensor[1::2]
+
+#@tf.function
+def gather(pairs, tensor0, tensor1):
+  return (batched_gather(pairs[..., 0], tensor0),
+          batched_gather(pairs[..., 1], tensor1))
 
 class InferenceModel(keras.Model):
   def __init__(self, config):
@@ -18,6 +28,8 @@ class InferenceModel(keras.Model):
 
     self._gt_relation = GTRelation()
     self._relation_module = RelationModule(config.regularization_scale)
+    self._pairwise_module = PairwiseCrossSimilarity(self._relation_module)
+
     if config.negative_bag_size > 0:
       unary_relation_module = RelationModule(config.regularization_scale)
       self._unary_module = UnaryModule(unary_relation_module)
@@ -30,45 +42,34 @@ class InferenceModel(keras.Model):
     else:
       return self.testing_call(inputs)
 
-  def testing_call(self, inputs):
-    training = False
-    pos_fea, neg_fea, pos_classes, _, target_class = inputs
-    pos_shape = tf.shape(pos_fea)
-    pos_fea = tf.reshape(pos_fea, [-1, pos_shape[2] , pos_shape[3]])
-    k = pos_shape[1]
-    pos_shape = tf.shape(pos_fea)
+  def get_unaries(self, pos_fea, neg_fea):
+    if self._config.negative_bag_size > 0:
+      unary_energy = self._unary_module([pos_fea, neg_fea], training=False)
+    else:
+      unary_energy = tf.zeros(tf.shape(pos_fea)[:-1])
+    return unary_energy
 
-    unary_energy = self._unary_module([pos_fea, neg_fea], training=training)
+  def get_top_selection(self, pos_fea, unary_energy, k):
     tree_height = np.log2(k)
-    assert(tree_height % 1.0 == 0.0), 'K is not power of 2.'
     tree_height = int(tree_height)
-
+    pos_shape = tf.shape(pos_fea)
     subproblems = tf.range(pos_shape[1])[tf.newaxis, :, tf.newaxis]
     subproblems = tf.tile(subproblems, [pos_shape[0], 1, 1])
-
     pairwise_energy = tf.zeros_like(unary_energy)
 
-    def split(tensor):
-      return tensor[::2], tensor[1::2]
-
-    def gather(pairs, tensor0, tensor1):
-      return (batched_gather(pairs[..., 0], tensor0),
-              batched_gather(pairs[..., 1], tensor1))
-
     unary_scales = self._config.unary_scales
-    #[0.2, 0.5, 0.8, 1.6]
     ntop_proposal = self._config.ntop_proposals
     for i in range(tree_height):
-      k = 2**(i+1)
       subproblems0, subproblems1 = split(subproblems)
       pairwise_energy0, pairwise_energy1 = split(pairwise_energy)
       unary_energy0, unary_energy1 = split(unary_energy)
 
-      pairwise_module = PairwiseCrossSimilarity(self._relation_module, k)
-      scores, pairs = pairwise_module([pos_fea, subproblems0, subproblems1])
+      k = tf.constant(2**(i+1), dtype=tf.int32)
+      scores, pairs = self._pairwise_module([pos_fea, subproblems0, subproblems1, k])
 
       subproblems0, subproblems1 = gather(pairs, subproblems0, subproblems1)
-      pairwise_energy0, pairwise_energy1 = gather(pairs, pairwise_energy0, pairwise_energy1)
+      pairwise_energy0, pairwise_energy1 = gather(pairs, pairwise_energy0,
+                                                  pairwise_energy1)
       unary_energy0, unary_energy1 = gather(pairs, unary_energy0, unary_energy1)
 
       ## new pairwise energy = left side energy + right side energy + cross energy
@@ -90,10 +91,27 @@ class InferenceModel(keras.Model):
       (subproblems, unary_energy,
        pairwise_energy) = batched_gather(top_inds, subproblems, unary_energy,
                                                    pairwise_energy)
+    return subproblems
 
+  def get_is_target(self, target_class, pos_classes):
     target_class = tf.cast(target_class, dtype=tf.float32)
     is_target = tf.cast(tf.equal(pos_classes, target_class[:, tf.newaxis, tf.newaxis]),
                         dtype=tf.float32)
+    return is_target
+
+  def get_k_pos_fea(self, pos_fea):
+    pos_shape = tf.shape(pos_fea)
+    k = pos_fea.shape[1]
+    pos_fea = tf.reshape(pos_fea, [-1, pos_shape[2] , pos_shape[3]])
+    return k, pos_fea
+  #@tf.function
+  def testing_call(self, inputs):
+    training = False
+    pos_fea, neg_fea, pos_classes, _, target_class = inputs
+    k, pos_fea = self.get_k_pos_fea(pos_fea)
+    unary_energy = self.get_unaries(pos_fea, neg_fea)
+    subproblems = self.get_top_selection(pos_fea, unary_energy, k)
+    is_target = self.get_is_target(target_class, pos_classes)
     return subproblems[:, 0] , is_target
 
   def training_call(self, inputs):

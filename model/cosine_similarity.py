@@ -18,6 +18,7 @@ class CosineSimilarity(keras.layers.Layer):
     self.D = input_shapes[0][-1]
     super(CosineSimilarity, self).build(input_shapes)
 
+  @tf.function
   def call(self, inputs, training=None):
     assert(isinstance(inputs, list) and len(inputs) == 2),'inputs must be a list of two tensors'
     #fea0 is N,M,D and fea1 is N,L,D

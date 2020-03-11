@@ -38,11 +38,11 @@ def _load_data(data_path, split, is_training, use_features=False):
     original_images = None
     if use_features:
       img_pkl_file = os.path.join(data_path, split+'_v2.pkl')
-      assert os.path.exists(img_pkl_file), "image pickle file {} does not exist.".format(pkl_file)
-      logger.info("Loading original images of MiniImageNet")
-      with open(img_pkl_file, 'rb') as f:
-        img_data_dict = pickle.load(f, encoding='latin1')
-      original_images = img_data_dict['images']
+      if os.path.exists(img_pkl_file):
+        logger.info("Loading original images of MiniImageNet")
+        with open(img_pkl_file, 'rb') as f:
+          img_data_dict = pickle.load(f, encoding='latin1')
+        original_images = img_data_dict['images']
     assert os.path.exists(pkl_file), "pickle file {} does not exist".format(pkl_file)
 
     logger.info("loading MiniImageNet data")

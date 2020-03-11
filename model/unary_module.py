@@ -35,6 +35,7 @@ class UnaryModule(keras.layers.Layer):
                                     initializer=initializer)
     super(UnaryModule, self).build(input_shapes)
 
+  @tf.function
   def call(self, inputs, training=None):
     '''
     Args:
