@@ -1,12 +1,12 @@
 ## Learning to Find Common Objects Across Few Image Collections
 
-Code for the paper [Learning to Find Common Objects Across Few Image Collections](https://arxiv.org/abs/1904.12936). This is a reimplementation of the original code in TF2. The results might be slightly different from the paper due to the randomness.
+Code for the paper [Learning to Find Common Objects Across Few Image Collections](https://arxiv.org/abs/1904.12936). This is a reimplementation of the original code in TF2. Original TF1 implementation can be found [here](https://github.com/AmirooR/Pairwise-Similarity-knowledge-Transfer-WSOL). The results might be slightly different from the paper due to the randomness.
 
 If you use this code, please cite our paper:
 
 ```
 @inproceedings{shaban19learning,
- author = {Shaban, Amirreza* and Rahimi, Amir* and Bansal, Shray and Gould, Stephen and Boots, Byron and Hartley, Richard},
+ author = {Shaban, Amirreza and Rahimi, Amir and Bansal, Shray and Gould, Stephen and Boots, Byron and Hartley, Richard},
  booktitle = {Proceedings of the International Conference on Computer Vision ({ICCV})},
  title = {Learning to Find Common Objects Across Few Image Collections},
  year = {2019}
